@@ -40,6 +40,32 @@ namespace BlogPostSimpleApp.Migrations
                     b.ToTable("Blogs");
                 });
 
+            modelBuilder.Entity("BlogPostSimpleApp.Models.BlogType", b =>
+                {
+                    b.Property<int>("BlogTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BlogTypeId"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("BlogTypeId");
+
+                    b.ToTable("BlogType");
+                });
+
             modelBuilder.Entity("BlogPostSimpleApp.Models.Post", b =>
                 {
                     b.Property<int>("PostId")

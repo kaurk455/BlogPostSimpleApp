@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlogPostSimpleApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250707234909_Added-BlogType-Entity")]
-    partial class AddedBlogTypeEntity
+    [Migration("20250709001321_BlogType-Schema-Changes")]
+    partial class BlogTypeSchemaChanges
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,6 +41,32 @@ namespace BlogPostSimpleApp.Migrations
                     b.HasKey("BlogId");
 
                     b.ToTable("Blogs");
+                });
+
+            modelBuilder.Entity("BlogPostSimpleApp.Models.BlogType", b =>
+                {
+                    b.Property<int>("BlogTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BlogTypeId"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("BlogTypeId");
+
+                    b.ToTable("BlogType");
                 });
 
             modelBuilder.Entity("BlogPostSimpleApp.Models.Post", b =>

@@ -7,6 +7,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Post> Posts { get; set; }
 
+    public DbSet<BlogType> BlogTypes { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder options)
  => options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=BlogDb;Trusted_Connection = True;");
 
