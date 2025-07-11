@@ -10,12 +10,24 @@ public class AppDbContext : DbContext
     =>
    options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=BlogDb;Trusted_Connection = True;");
 
-
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Post>()
             .HasOne(p => p.PostType)
             .WithMany(pt => pt.Posts)
-            .HasForeignKey(p => p.PostTypeId);
+            .HasForeignKey(p => p.PostTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Blog>()
+            .HasOne(p => p.BlogType)
+            .WithMany(pt => pt.Blogs)
+            .HasForeignKey(p => p.BlogTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Post>()
+        .HasOne(p => p.Blog)
+        .WithMany(b => b.Posts)
+        .HasForeignKey(p => p.BlogId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
-    }
+}

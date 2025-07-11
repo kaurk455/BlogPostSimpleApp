@@ -3,19 +3,20 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlogPostSimpleApp.Models
 {
-    [Table("BlogType")]  
+    [Table("BlogType")]
     public class BlogType
     {
         public int BlogTypeId { get; set; }
 
-        [Required]  
+        [Required]
         public int Status { get; set; }
 
-        [Required]  
-        [MaxLength(20)] 
+        [Required]
+        [MaxLength(20)]
         public string Name { get; set; }
 
-        [MaxLength(400)]  
+        [MaxLength(400)]
         public string Description { get; set; }
+        public List<Blog> Blogs { get; set; }
     }
 }
