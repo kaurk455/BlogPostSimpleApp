@@ -10,51 +10,79 @@ class Program
     {
         using var context = new AppDbContext();
 
-       
-        var users = new List<User>
+        if (!context.BlogTypes.Any())
         {
-            new User { Name = "Arsh", Email = "alice@example.com", PhoneNumber = "2468631236" },
-            new User { Name = "Kiran", Email = "bob@example.com", PhoneNumber = "9875434598" },
-            new User { Name = "Akash", Email = "charlie@example.com", PhoneNumber = "3321733453" }
-        };
-
-        context.users.AddRange(users);
-        context.SaveChanges();
-
-        
-        Console.Write("Enter blog URL: ");
-        var url = Console.ReadLine();
-        var blog = new Blog { Url = url };
-        context.Blogs.Add(blog);
-        context.SaveChanges();
-
-       
-        var user = context.users.First(); 
-        var post = new Post
-        {
-            Title = "Hello Entity Framework",
-            Content = "This is my first Assignment!",
-            BlogId = blog.BlogId,
-            UserId = user.UserId,
-            PostTypeId = 1 
-        };
-
-        context.Posts.Add(post);
-        context.SaveChanges();
-
-        
-        var blogs = context.Blogs
-                           .Include(b => b.Posts)
-                           .ThenInclude(p => p.User)
-                           .ToList();
-
-        foreach (var b in blogs)
-        {
-            Console.WriteLine($"Blog: {b.Url}");
-            foreach (var p in b.Posts)
-            {
-                Console.WriteLine($"  Post: {p.Title} - {p.Content} (by {p.User?.Name ?? "Unknown"})");
-            }
+            var type1 = new BlogType { Name = "Tech", Description = "Tech Blogs", Status = 1 };
+            var type2 = new BlogType { Name = "Food", Description = "Food Blogs", Status = 2 };
+            context.BlogTypes.AddRange(type1, type2);
+            context.SaveChanges();
         }
+        if (!context.PostTypes.Any())
+        {
+            var type1 = new PostType { Name = "Animation", Description = "Animation Blogs", Status = 1 };
+            var type2 = new PostType { Name = "Games", Description = "Games Blogs", Status = 2 };
+            context.PostTypes.AddRange(type1, type2);
+            context.SaveChanges();
+        }
+        if (!context.Blogs.Any())
+        {
+            var type1 = new Blog { Url = "https://en.wikipedia.org/wiki/Tech_blogging", isPublic = true, BlogTypeId=1 };
+            var type2 = new Blog { Url = "https://en.wikipedia.org/wiki/Food_blogging", isPublic = true, BlogTypeId =2 };
+            context.Blogs.AddRange(type1, type2);
+            context.SaveChanges();
+        }
+
+
+    
+
+
+ //Add 3 users
+ var users = new List<User>
+     {
+
+
+ new User { Name = "Arsh", Email = "alice@example.com", PhoneNumber = "2468631236" },
+  new User { Name = "Kiran", Email = "bob@example.com", PhoneNumber = "9875434598" },
+ new User { Name = "Akash", Email = "charlie@example.com", PhoneNumber = "3321733453" }
+};
+
+context.users.AddRange(users);
+context.SaveChanges();
+
+
+Console.Write("Enter blog URL: ");
+var url = Console.ReadLine();
+var blog = new Blog { Url = url };
+context.Blogs.Add(blog);
+context.SaveChanges();
+
+
+var user = context.users.First();
+var post = new Post
+{
+    Title = "Hello Entity Framework",
+    Content = "This is my first Assignment!",
+    BlogId = blog.BlogId,
+    UserId = user.UserId,
+    PostTypeId = 1
+};
+
+context.Posts.Add(post);
+context.SaveChanges();
+
+
+var blogs = context.Blogs
+                 .Include(b => b.Posts)
+                 .ThenInclude(p => p.User)
+                 .ToList();
+
+foreach (var b in blogs)
+{
+    Console.WriteLine($"Blog: {b.Url}");
+    foreach (var p in b.Posts)
+    {
+        Console.WriteLine($"  Post: {p.Title} - {p.Content} (by {p.User?.Name ?? "Unknown"})");
     }
+}
+}
 }
