@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 class Program
 {
@@ -26,18 +27,23 @@ class Program
         }
         if (!context.Blogs.Any())
         {
-            var type1 = new Blog { Url = "https://en.wikipedia.org/wiki/Tech_blogging", isPublic = true, BlogTypeId=1 };
-            var type2 = new Blog { Url = "https://en.wikipedia.org/wiki/Food_blogging", isPublic = true, BlogTypeId =2 };
+            var type1 = new Blog { Url = "https://en.wikipedia.org/wiki/Tech_blogging", isPublic = true, BlogTypeId = 1 };
+            var type2 = new Blog { Url = "https://en.wikipedia.org/wiki/Food_blogging", isPublic = true, BlogTypeId = 2 };
             context.Blogs.AddRange(type1, type2);
             context.SaveChanges();
         }
 
+        if (!context.Posts.Any())
+        {
+            var type1 = new Post { Title = "Cars", Content = "CarsPost", BlogId = 2, PostTypeId = 1, UserId = 1 };
+            var type2 = new Post { Title = "Bike", Content = "BikesPost", BlogId = 3, PostTypeId = 2, UserId = 2 };
+            context.Posts.AddRange(type1, type2);
+            context.SaveChanges();
+        
+   }
 
-    
 
-
- //Add 3 users
- var users = new List<User>
+var users = new List<User>
      {
 
 
