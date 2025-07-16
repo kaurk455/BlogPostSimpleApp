@@ -14,5 +14,8 @@ namespace BlogPostSimpleApp.Models
         public List<Post> Posts { get; set; }
         public int BlogTypeId { get; set; }         // Foreign key
         public BlogType BlogType { get; set; }      // Navigation property
+
+        public int StatusId { get; set; }       
+        public Status Status { get; set; }     
     }
 }
