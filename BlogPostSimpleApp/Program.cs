@@ -6,122 +6,115 @@ using System.Linq;
 
 class Program
 {
-    private static List<User> users = new List<User>();
-    private static int idCounter = 1;
-
-    //using var context = new AppDbContext();
-    //private static List<User> users = new List<User>();
-    //private static int idCounter = 1;
-
-    static void Main(string[] args)
+    static void Main()
     {
         TestDatabase();
-
-        Console.WriteLine("\nPress any key to exit...");
-        Console.ReadKey();
     }
 
-    // List all users
+
     static void ListAllUsers()
     {
-        Console.WriteLine("\n-- User List --");
+        using var context = new AppDbContext();
+        var users = context.users.ToList();
+
+        Console.WriteLine("Current Users ");
         if (!users.Any())
         {
             Console.WriteLine("No users found.");
+            return;
         }
-        else
+
+        foreach (var user in users)
         {
-            foreach (var user in users)
-            {
-                Console.WriteLine($"ID: {user.UserId}, Name: {user.Name}, Email: {user.Email}, Phone: {user.PhoneNumber}");
-            }
+            Console.WriteLine($"ID: {user.UserId}, Name: {user.Name}, Email: {user.Email}, Phone: {user.PhoneNumber}");
         }
     }
 
-    // Add a new user
-    static void AddUser(string name, string email, string phoneNumber)
+
+    static void AddUser(string name, string email, string phone)
     {
+        using var context = new AppDbContext();
         var user = new User
         {
-            UserId = idCounter++,
             Name = name,
             Email = email,
-            PhoneNumber = phoneNumber
+            PhoneNumber = phone
         };
-        users.Add(user);
-        Console.WriteLine($"\nAdded User: {name}");
+
+        context.users.Add(user);
+        context.SaveChanges();
+        Console.WriteLine($"Added user: {name}");
     }
 
-    // Update a user
-    static void UpdateUser(int userId, string newName, string newEmail, string newPhoneNumber)
+
+    static void UpdateUser(int userId, string newName)
     {
-        var user = users.FirstOrDefault(u => u.UserId == userId);
-        if (user != null)
+        using var context = new AppDbContext();
+        var user = context.users.FirstOrDefault(u => u.UserId == userId);
+
+        if (user == null)
         {
-            user.Name = newName;
-            user.Email = newEmail;
-            user.PhoneNumber = newPhoneNumber;
-            Console.WriteLine($"\nUpdated User with ID: {userId}");
+            Console.WriteLine($" No user found with ID {userId}");
+            return;
         }
-        else
-        {
-            Console.WriteLine($"\nUser with ID {userId} not found.");
-        }
+
+        user.Name = newName;
+        context.SaveChanges();
+        Console.WriteLine($" Updated user ID {userId} to new name: {newName}");
     }
 
-    // Delete a user
+
     static void DeleteUser(int userId)
     {
-        var user = users.FirstOrDefault(u => u.UserId == userId);
-        if (user != null)
+        using var context = new AppDbContext();
+        var user = context.users.FirstOrDefault(u => u.UserId == userId);
+
+        if (user == null)
         {
-            users.Remove(user);
-            Console.WriteLine($"\nDeleted User with ID: {userId}");
+            Console.WriteLine($" No user found with ID {userId} to delete.");
+            return;
         }
-        else
-        {
-            Console.WriteLine($"\nUser with ID {userId} not found.");
-        }
+
+        context.users.Remove(user);
+        context.SaveChanges();
+        Console.WriteLine($" Deleted user ID {userId}");
     }
 
-    // Test all CRUD operations
+
     static void TestDatabase()
     {
-        // Create users
-        AddUser("Kiran", "kiran@gmail.com", "8762342390");
-        AddUser("Parmar", "parmar@gmail.com", "7234120956");
+        Console.WriteLine(" CRUD Tests...");
+
+
+        using (var context = new AppDbContext())
+        {
+            context.users.RemoveRange(context.users);
+            context.SaveChanges();
+            context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Users', RESEED, 0)");
+
+
+            var users = new List<User>
+            {
+                new User { Name = "Arsh", Email = "arsh@example.com", PhoneNumber = "1234567890" },
+                new User { Name = "kiran", Email = "kiran@example.com", PhoneNumber = "2345678901" }
+            };
+            context.users.AddRange(users);
+            context.SaveChanges();
+        }
+
         ListAllUsers();
 
-        // Update user
-        UpdateUser(1, "Kiran", "kparmar@gmail.com", "9061234523");
+
+        AddUser("Parmar", "parmar@example.com", "3456789012");
         ListAllUsers();
 
-        // Delete user
-        DeleteUser(2);
+
+        UpdateUser(2, "Harman");
         ListAllUsers();
 
-        // Add another user
-        AddUser("Arsh", "arsh@gmail.com","0921134623");
+
+        DeleteUser(1);
         ListAllUsers();
     }
 }
-// Clear existing data
-//            context.Posts.RemoveRange(context.Posts);
-//            context.Blogs.RemoveRange(context.Blogs);
-//            context.BlogTypes.RemoveRange(context.BlogTypes);
-//            context.PostTypes.RemoveRange(context.PostTypes);
-//            context.users.RemoveRange(context.users);
-//            context.SaveChanges();
-
-//            // Reset identity counters
-//            context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('BlogType', RESEED, 0)"); // because table name is BlogType
-//            context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Blogs', RESEED, 0)");
-//            context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Posts', RESEED, 0)");
-//            context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('PostTypes', RESEED, 0)"); // because table name is PostType
-//            context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Users', RESEED, 0)");
-
-
-//        }
-//    }
-//}
 
