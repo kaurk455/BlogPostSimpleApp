@@ -8,113 +8,109 @@ class Program
 {
     static void Main()
     {
-        TestDatabase();
-    }
-
-
-    static void ListAllUsers()
-    {
         using var context = new AppDbContext();
-        var users = context.users.ToList();
 
-        Console.WriteLine("Current Users ");
-        if (!users.Any())
-        {
-            Console.WriteLine("No users found.");
-            return;
-        }
-
-        foreach (var user in users)
-        {
-            Console.WriteLine($"ID: {user.UserId}, Name: {user.Name}, Email: {user.Email}, Phone: {user.PhoneNumber}");
-        }
-    }
-
-
-    static void AddUser(string name, string email, string phone)
-    {
-        using var context = new AppDbContext();
-        var user = new User
-        {
-            Name = name,
-            Email = email,
-            PhoneNumber = phone
-        };
-
-        context.users.Add(user);
+        var blogType1 = new BlogType { Status = 1, Name = "Arsh", Description = "Elder Brother" };
+        var blogType2 = new BlogType { Status = 2, Name = "Parmar", Description = "Cousin Brother" };
+        context.BlogTypes.AddRange(blogType1, blogType2);
         context.SaveChanges();
-        Console.WriteLine($"Added user: {name}");
-    }
 
 
-    static void UpdateUser(int userId, string newName)
-    {
-        using var context = new AppDbContext();
-        var user = context.users.FirstOrDefault(u => u.UserId == userId);
-
-        if (user == null)
-        {
-            Console.WriteLine($" No user found with ID {userId}");
-            return;
-        }
-
-        user.Name = newName;
+        var status1 = new Status { StatusCode = 1, Name = "Active", Description = "Active status" };
+        var status2 = new Status { StatusCode = 2, Name = "Inactive", Description = "Inactive status" };
+        context.Statuses.AddRange(status1, status2);
         context.SaveChanges();
-        Console.WriteLine($" Updated user ID {userId} to new name: {newName}");
-    }
 
 
-    static void DeleteUser(int userId)
-    {
-        using var context = new AppDbContext();
-        var user = context.users.FirstOrDefault(u => u.UserId == userId);
-
-        if (user == null)
-        {
-            Console.WriteLine($" No user found with ID {userId} to delete.");
-            return;
-        }
-
-        context.users.Remove(user);
+        var blog1 = new Blog { Url = "www.arsh.com", isPublic = true, BlogTypeId = blogType1.BlogTypeId, StatusId = status1.StatusId };
+        var blog2 = new Blog { Url = "www.parmar.com", isPublic = true, BlogTypeId = blogType2.BlogTypeId, StatusId = status2.StatusId };
+        context.Blogs.AddRange(blog1, blog2);
         context.SaveChanges();
-        Console.WriteLine($" Deleted user ID {userId}");
-    }
 
 
-    static void TestDatabase()
-    {
-        Console.WriteLine(" CRUD Tests...");
+        var postType1 = new PostType { Status = 1, Name = "Chandigarh", Description = "City Name" };
+        var postType2 = new PostType { Status = 2, Name = "Canada", Description = "The Best Country" };
+        context.PostTypes.AddRange(postType1, postType2);
+        context.SaveChanges();
 
 
-        using (var context = new AppDbContext())
+        var user1 = new User { Name = "Mahir", Email = "arsh20@gmail.com", PhoneNumber = "7893420932" };
+        var user2 = new User { Name = "Riyaz", Email = "parmar20@gmail.com", PhoneNumber = "7832111093" };
+        context.users.AddRange(user1, user2);
+        context.SaveChanges();
+
+
+        var post1 = new Post { Title = "How to become Rich", Content = "Details Included in the Bio", BlogId = blog1.BlogId, PostTypeId = postType1.PostTypeId, UserId = user1.UserId };
+        var post2 = new Post { Title = "How to become Developer", Content = "By Lots of Practicing", BlogId = blog2.BlogId, PostTypeId = postType2.PostTypeId, UserId = user2.UserId };
+        context.Posts.AddRange(post1, post2);
+        context.SaveChanges();
+
+
+
+        var results = context.Posts
+       .Include(p => p.Blog)
+       .ThenInclude(b => b.BlogType)
+       .Include(p => p.Blog.Status)
+       .Include(p => p.PostType)
+       .Include(p => p.User)
+       .Where(p =>
+              p.PostType.Status == 1 &&
+              p.Blog.BlogType.Status == 1 &&
+              p.Blog.Status.Name == "Active")
+       .Select(p => new
+       {
+           BlogUrl = p.Blog.Url,
+           BlogIsPublic = p.Blog.isPublic,
+           BlogTypeName = p.Blog.BlogType.Name,
+           UserName = p.User.Name,
+           UserEmail = p.User.Email,
+           TotalUserPosts = context.Posts.Count(x => x.UserId == p.UserId),
+           PostTypeName = p.PostType.Name
+       })
+       .OrderBy(p => p.UserName)
+       .ToList();
+
+
+        foreach (var item in results)
         {
-            context.users.RemoveRange(context.users);
-            context.SaveChanges();
-            context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Users', RESEED, 0)");
-
-
-            var users = new List<User>
-            {
-                new User { Name = "Arsh", Email = "arsh@example.com", PhoneNumber = "1234567890" },
-                new User { Name = "kiran", Email = "kiran@example.com", PhoneNumber = "2345678901" }
-            };
-            context.users.AddRange(users);
-            context.SaveChanges();
+            Console.WriteLine("==================================");
+            Console.WriteLine($"Blog URL: {item.BlogUrl}");
+            Console.WriteLine($"Is Public: {item.BlogIsPublic}");
+            Console.WriteLine($"Blog Type: {item.BlogTypeName}");
+            Console.WriteLine($"User Name: {item.UserName}");
+            Console.WriteLine($"User Email: {item.UserEmail}");
+            Console.WriteLine($"Total Posts by User: {item.TotalUserPosts}");
+            Console.WriteLine($"Post Type: {item.PostTypeName}");
         }
-
-        ListAllUsers();
-
-
-        AddUser("Parmar", "parmar@example.com", "3456789012");
-        ListAllUsers();
-
-
-        UpdateUser(2, "Harman");
-        ListAllUsers();
-
-
-        DeleteUser(1);
-        ListAllUsers();
     }
 }
+//using BlogPostSimpleApp.Models;
+//using Microsoft.EntityFrameworkCore;
+//using System;
+//using System.Linq;
+//class Program
+//{
+//    static void Main()
+//    {
 
+
+//        using var context = new AppDbContext();
+
+
+//        // Clear existing data
+//        context.Posts.RemoveRange(context.Posts);
+//        context.Blogs.RemoveRange(context.Blogs);
+//        context.BlogTypes.RemoveRange(context.BlogTypes);
+//        context.PostTypes.RemoveRange(context.PostTypes);
+//        context.users.RemoveRange(context.users);
+//        context.SaveChanges();
+
+//        // Reset identity counters
+//        context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('BlogType', RESEED, 0)"); // because table name is BlogType
+//        context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Blogs', RESEED, 0)");
+//        context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Posts', RESEED, 0)");
+//        context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('PostTypes', RESEED, 0)"); // because table name is PostType
+//        context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Users', RESEED, 0)");
+
+//    }
+//}
